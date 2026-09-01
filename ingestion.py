@@ -14,6 +14,11 @@ stored (identified by their deterministic chunk IDs).
 """
 
 import os
+import sys
+
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 from PyPDF2 import PdfReader
 from docx import Document as DocxDocument
 import chromadb
@@ -22,6 +27,7 @@ from config import (
     DATA_DIR,
     CHROMA_DB_DIR,
     COLLECTION_NAME,
+    DISTANCE_METRIC,
     CHUNK_SIZE,
     CHUNK_OVERLAP,
 )
@@ -160,8 +166,9 @@ def chunk_text(text: str, chunk_size: int = CHUNK_SIZE, chunk_overlap: int = CHU
         end = start + chunk_size
         chunks.append(text[start:end])
 
-        # Move forward by (chunk_size - overlap) characters
-        start += chunk_size - chunk_overlap
+        # Move forward by (chunk_size - overlap) characters (at least 1 char)
+        step = max(1, chunk_size - chunk_overlap)
+        start += step
 
     return chunks
 
@@ -220,9 +227,12 @@ def store_chunks_in_chromadb(chunks: list[dict]) -> None:
         print("[ingestion] No chunks to store.")
         return
 
-    # Connect to persistent ChromaDB
+    # Connect to persistent ChromaDB with cosine similarity space
     client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
-    collection = client.get_or_create_collection(name=COLLECTION_NAME)
+    collection = client.get_or_create_collection(
+        name=COLLECTION_NAME,
+        metadata={"hnsw:space": DISTANCE_METRIC},
+    )
 
     # Find which chunk IDs already exist in the collection
     all_ids = [c["id"] for c in chunks]

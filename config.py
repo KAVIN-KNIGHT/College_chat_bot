@@ -18,6 +18,10 @@ CHROMA_DB_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
 # Name of the ChromaDB collection that holds all document chunks.
 COLLECTION_NAME = "college_knowledge"
 
+# Distance metric for vector similarity search in ChromaDB.
+# 'cosine' calculates cosine distance (1 - cosine_similarity).
+DISTANCE_METRIC = "cosine"
+
 # ─── Embedding Model ────────────────────────────────────────────────
 # ChromaDB's built-in DefaultEmbeddingFunction uses all-MiniLM-L6-v2
 # via ONNX runtime. No separate configuration is needed — if you want

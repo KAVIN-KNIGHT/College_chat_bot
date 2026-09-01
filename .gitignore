@@ -13,3 +13,7 @@ __pycache__/
 # OS
 Thumbs.db
 .DS_Store
+
+# Database
+chroma_db/
+
