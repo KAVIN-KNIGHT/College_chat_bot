@@ -13,9 +13,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
+
+def get_client():
+    """Get Gemini client if a valid API key is present."""
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key or api_key.strip() == "" or api_key == "your_gemini_api_key_here":
+        return None
+    try:
+        return genai.Client(api_key=api_key)
+    except Exception as e:
+        print(f"[llm] Error initializing Gemini client: {e}")
+        return None
 
 
 def generate_answer(context: str, question: str) -> str:
@@ -23,6 +31,10 @@ def generate_answer(context: str, question: str) -> str:
     Send a question to Gemini along with retrieved document context.
     Returns the model's text response.
     """
+    client = get_client()
+    if not client:
+        return "⚠️ **GEMINI_API_KEY is not configured or invalid.**\n\nPlease add your valid Gemini API Key to the `.env` file (`GEMINI_API_KEY=AIzaSy...`) to enable LLM answer generation."
+
     prompt = f"""You are CampusAI, a college information assistant. You answer questions STRICTLY and ONLY using the retrieved document context provided below.
 
 STRICT RULES — YOU MUST FOLLOW ALL OF THESE:
@@ -51,9 +63,12 @@ Question:
 
 Answer:
     """
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt,
-    )
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
+        return response.text
+    except Exception as e:
+        return f"⚠️ Error generating answer from Gemini API: {str(e)}"
 
-    return response.text

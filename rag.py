@@ -53,7 +53,7 @@ def format_sources(chunks: list[dict]) -> list[dict]:
 
 def answer_question(question: str, top_k: int = None) -> dict:
     """
-    Full RAG pipeline: question → retrieve → prompt → LLM → answer.
+    Full RAG pipeline: question → retrieve (cosine similarity) → prompt → LLM → answer.
 
     Args:
         question: The user's natural-language question.
@@ -61,15 +61,16 @@ def answer_question(question: str, top_k: int = None) -> dict:
 
     Returns:
         {
-            "answer":  "The minimum attendance requirement is...",
-            "sources": [
+            "answer":      "The minimum attendance requirement is...",
+            "sources":     [
                 {"source": "academic_regulations.pdf", "page": 12},
                 ...
             ],
-            "chunks_used": 5
+            "chunks_used": 5,
+            "chunks":      [list of retrieved chunk dicts with similarity scores]
         }
     """
-    # Step 1: Retrieve relevant chunks from ChromaDB
+    # Step 1: Retrieve relevant chunks from ChromaDB using Cosine Similarity
     kwargs = {}
     if top_k is not None:
         kwargs["top_k"] = top_k
@@ -89,4 +90,5 @@ def answer_question(question: str, top_k: int = None) -> dict:
         "answer": answer,
         "sources": sources,
         "chunks_used": len(chunks),
+        "chunks": chunks,
     }

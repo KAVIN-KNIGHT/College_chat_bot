@@ -1,4 +1,8 @@
 """Test: verify LLM call works, then test the full RAG flow."""
+import sys
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 from llm import generate_answer
 
 # -- Test 1: Raw LLM call --
