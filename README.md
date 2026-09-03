@@ -771,5 +771,5 @@ This project is open-source. Feel free to use, modify, and distribute it for edu
 ---
 
 <p align="center">
-  <strong>Built with ❤️ using Streamlit · ChromaDB · Google Gemini</strong>
+  <strong>Built using Streamlit · ChromaDB · Google Gemini</strong>
 </p>
